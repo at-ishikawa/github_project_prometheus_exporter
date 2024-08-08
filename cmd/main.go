@@ -52,8 +52,12 @@ func runMain() (int, error) {
 			if err != nil {
 				return fmt.Errorf("FetchUserProject: %w", err)
 			}
+			stats, err := client.FetchProjectStats(ctx, projectID)
+			if err != nil {
+				return fmt.Errorf("FetchProjectStats: %w", err)
+			}
 
-			fmt.Println(projectID)
+			fmt.Println(stats)
 			return nil
 		},
 	}

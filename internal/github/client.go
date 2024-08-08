@@ -46,3 +46,41 @@ func (client *Client) FetchUserProject(ctx context.Context, userId string, proje
 
 	return response.User.ProjectV2.Id, nil
 }
+
+func (client *Client) FetchProjectStats(ctx context.Context, projectId string) (map[string]map[string]int, error) {
+	response, err := PaginateProjectItems(ctx, client.graphQLClient, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("FetchProjectItems: %w", err)
+	}
+
+	projectNode := response.GetNode()
+	if projectNode.GetTypename() != "ProjectV2" {
+		return nil, fmt.Errorf("unexpected typename: %s", response.GetNode().GetTypename())
+	}
+
+	stats := make(map[string]map[string]int)
+	projectV2 := projectNode.(*PaginateProjectItemsNodeProjectV2)
+	for _, itemNode := range projectV2.Items.GetNodes() {
+		for _, fieldValueNode := range itemNode.FieldValues.GetNodes() {
+			if fieldValueNode.GetTypename() != "ProjectV2ItemFieldSingleSelectValue" {
+				continue
+			}
+			// TDODO: Replace this with https://github.com/shurcooL/githubv4
+			fieldValue := fieldValueNode.(*PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodesProjectV2ItemFieldValuesProjectV2ItemFieldValueConnectionNodesProjectV2ItemFieldSingleSelectValue)
+			// support only a single select
+			if fieldValue.Field.GetTypename() != "ProjectV2SingleSelectField" {
+				continue
+			}
+
+			field := fieldValue.Field.(*PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodesProjectV2ItemFieldValuesProjectV2ItemFieldValueConnectionNodesProjectV2ItemFieldSingleSelectValueFieldProjectV2SingleSelectField)
+			fieldName := field.GetName()
+			if _, ok := stats[fieldName]; !ok {
+				stats[fieldName] = make(map[string]int)
+			}
+			valueName := fieldValue.GetName()
+			stats[fieldName][valueName]++
+		}
+	}
+
+	return stats, nil
+}

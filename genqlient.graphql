@@ -6,7 +6,7 @@ query FetchUserProject($userId: String!, $projectNumber: Int!) {
   }
 }
 
-query PaginateProjectIssues($projectId: ID!) {
+query PaginateProjectItems($projectId: ID!) {
   node(id: $projectId) {
     ... on ProjectV2 {
       items(first: 100) {
@@ -14,14 +14,6 @@ query PaginateProjectIssues($projectId: ID!) {
           id
           fieldValues(first: 8) {
             nodes{
-              ... on ProjectV2ItemFieldTextValue {
-                text
-                field {
-                  ... on ProjectV2FieldCommon {
-                    name
-                  }
-                }
-              }
               ... on ProjectV2ItemFieldSingleSelectValue {
                 name
                 field {
