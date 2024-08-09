@@ -1,7 +1,10 @@
-query FetchUserProject($userId: String!, $projectNumber: Int!) {
+query FetchUserProjects($userId: String!) {
   user(login: $userId){
-    projectV2(number: $projectNumber) {
-      id
+    projectsV2(first: 100) {
+      nodes {
+        id
+        title
+      }
     }
   }
 }

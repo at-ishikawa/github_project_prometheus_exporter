@@ -37,14 +37,26 @@ func NewClient(githubToken string) (*Client, error) {
 	}, nil
 }
 
+type Project struct {
+	ID    string
+	Title string
+}
+
 // See https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-information-about-projects
-func (client *Client) FetchUserProject(ctx context.Context, userId string, projectNumber int) (string, error) {
-	response, err := FetchUserProject(ctx, client.graphQLClient, userId, projectNumber)
+func (client *Client) FetchUserProjects(ctx context.Context, userId string) ([]Project, error) {
+	response, err := FetchUserProjects(ctx, client.graphQLClient, userId)
 	if err != nil {
-		return "", fmt.Errorf("FetchUserProject: %w", err)
+		return nil, fmt.Errorf("FetchUserProjects: %w", err)
 	}
 
-	return response.User.ProjectV2.Id, nil
+	projects := make([]Project, len(response.User.ProjectsV2.GetNodes()))
+	for i, node := range response.User.ProjectsV2.GetNodes() {
+		projects[i] = Project{
+			ID:    node.GetId(),
+			Title: node.GetTitle(),
+		}
+	}
+	return projects, nil
 }
 
 func (client *Client) FetchProjectStats(ctx context.Context, projectId string) (map[string]map[string]int, error) {

@@ -10,38 +10,63 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
-// FetchUserProjectResponse is returned by FetchUserProject on success.
-type FetchUserProjectResponse struct {
+// FetchUserProjectsResponse is returned by FetchUserProjects on success.
+type FetchUserProjectsResponse struct {
 	// Lookup a user by login.
-	User FetchUserProjectUser `json:"user"`
+	User FetchUserProjectsUser `json:"user"`
 }
 
-// GetUser returns FetchUserProjectResponse.User, and is useful for accessing the field via an interface.
-func (v *FetchUserProjectResponse) GetUser() FetchUserProjectUser { return v.User }
+// GetUser returns FetchUserProjectsResponse.User, and is useful for accessing the field via an interface.
+func (v *FetchUserProjectsResponse) GetUser() FetchUserProjectsUser { return v.User }
 
-// FetchUserProjectUser includes the requested fields of the GraphQL type User.
+// FetchUserProjectsUser includes the requested fields of the GraphQL type User.
 // The GraphQL type's documentation follows.
 //
 // A user is an individual's account on GitHub that owns repositories and can make new content.
-type FetchUserProjectUser struct {
-	// Find a project by number.
-	ProjectV2 FetchUserProjectUserProjectV2 `json:"projectV2"`
+type FetchUserProjectsUser struct {
+	// A list of projects under the owner.
+	ProjectsV2 FetchUserProjectsUserProjectsV2ProjectV2Connection `json:"projectsV2"`
 }
 
-// GetProjectV2 returns FetchUserProjectUser.ProjectV2, and is useful for accessing the field via an interface.
-func (v *FetchUserProjectUser) GetProjectV2() FetchUserProjectUserProjectV2 { return v.ProjectV2 }
+// GetProjectsV2 returns FetchUserProjectsUser.ProjectsV2, and is useful for accessing the field via an interface.
+func (v *FetchUserProjectsUser) GetProjectsV2() FetchUserProjectsUserProjectsV2ProjectV2Connection {
+	return v.ProjectsV2
+}
 
-// FetchUserProjectUserProjectV2 includes the requested fields of the GraphQL type ProjectV2.
+// FetchUserProjectsUserProjectsV2ProjectV2Connection includes the requested fields of the GraphQL type ProjectV2Connection.
+// The GraphQL type's documentation follows.
+//
+// The connection type for ProjectV2.
+type FetchUserProjectsUserProjectsV2ProjectV2Connection struct {
+	// A list of nodes.
+	Nodes []FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2 `json:"nodes"`
+}
+
+// GetNodes returns FetchUserProjectsUserProjectsV2ProjectV2Connection.Nodes, and is useful for accessing the field via an interface.
+func (v *FetchUserProjectsUserProjectsV2ProjectV2Connection) GetNodes() []FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2 {
+	return v.Nodes
+}
+
+// FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2 includes the requested fields of the GraphQL type ProjectV2.
 // The GraphQL type's documentation follows.
 //
 // New projects that manage issues, pull requests and drafts using tables and boards.
-type FetchUserProjectUserProjectV2 struct {
+type FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2 struct {
 	// The Node ID of the ProjectV2 object
 	Id string `json:"id"`
+	// The project's name.
+	Title string `json:"title"`
 }
 
-// GetId returns FetchUserProjectUserProjectV2.Id, and is useful for accessing the field via an interface.
-func (v *FetchUserProjectUserProjectV2) GetId() string { return v.Id }
+// GetId returns FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2.Id, and is useful for accessing the field via an interface.
+func (v *FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2) GetId() string {
+	return v.Id
+}
+
+// GetTitle returns FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2.Title, and is useful for accessing the field via an interface.
+func (v *FetchUserProjectsUserProjectsV2ProjectV2ConnectionNodesProjectV2) GetTitle() string {
+	return v.Title
+}
 
 // PaginateProjectItemsNode includes the requested fields of the GraphQL interface Node.
 //
@@ -7012,17 +7037,13 @@ func (v *PaginateProjectItemsResponse) __premarshalJSON() (*__premarshalPaginate
 	return &retval, nil
 }
 
-// __FetchUserProjectInput is used internally by genqlient
-type __FetchUserProjectInput struct {
-	UserId        string `json:"userId"`
-	ProjectNumber int    `json:"projectNumber"`
+// __FetchUserProjectsInput is used internally by genqlient
+type __FetchUserProjectsInput struct {
+	UserId string `json:"userId"`
 }
 
-// GetUserId returns __FetchUserProjectInput.UserId, and is useful for accessing the field via an interface.
-func (v *__FetchUserProjectInput) GetUserId() string { return v.UserId }
-
-// GetProjectNumber returns __FetchUserProjectInput.ProjectNumber, and is useful for accessing the field via an interface.
-func (v *__FetchUserProjectInput) GetProjectNumber() int { return v.ProjectNumber }
+// GetUserId returns __FetchUserProjectsInput.UserId, and is useful for accessing the field via an interface.
+func (v *__FetchUserProjectsInput) GetUserId() string { return v.UserId }
 
 // __PaginateProjectItemsInput is used internally by genqlient
 type __PaginateProjectItemsInput struct {
@@ -7032,34 +7053,35 @@ type __PaginateProjectItemsInput struct {
 // GetProjectId returns __PaginateProjectItemsInput.ProjectId, and is useful for accessing the field via an interface.
 func (v *__PaginateProjectItemsInput) GetProjectId() string { return v.ProjectId }
 
-// The query or mutation executed by FetchUserProject.
-const FetchUserProject_Operation = `
-query FetchUserProject ($userId: String!, $projectNumber: Int!) {
+// The query or mutation executed by FetchUserProjects.
+const FetchUserProjects_Operation = `
+query FetchUserProjects ($userId: String!) {
 	user(login: $userId) {
-		projectV2(number: $projectNumber) {
-			id
+		projectsV2(first: 100) {
+			nodes {
+				id
+				title
+			}
 		}
 	}
 }
 `
 
-func FetchUserProject(
+func FetchUserProjects(
 	ctx_ context.Context,
 	client_ graphql.Client,
 	userId string,
-	projectNumber int,
-) (*FetchUserProjectResponse, error) {
+) (*FetchUserProjectsResponse, error) {
 	req_ := &graphql.Request{
-		OpName: "FetchUserProject",
-		Query:  FetchUserProject_Operation,
-		Variables: &__FetchUserProjectInput{
-			UserId:        userId,
-			ProjectNumber: projectNumber,
+		OpName: "FetchUserProjects",
+		Query:  FetchUserProjects_Operation,
+		Variables: &__FetchUserProjectsInput{
+			UserId: userId,
 		},
 	}
 	var err_ error
 
-	var data_ FetchUserProjectResponse
+	var data_ FetchUserProjectsResponse
 	resp_ := &graphql.Response{Data: &data_}
 
 	err_ = client_.MakeRequest(
