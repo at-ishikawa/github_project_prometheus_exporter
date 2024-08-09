@@ -102,7 +102,6 @@ func runMain() (int, error) {
 
 			// TODO: Support both of env vars and arguments
 			userId := args[0]
-
 			githubToken := os.Getenv("GITHUB_TOKEN")
 			if githubToken == "" {
 				return fmt.Errorf("GITHUB_TOKEN environment variable is required")
