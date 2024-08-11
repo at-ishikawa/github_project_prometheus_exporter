@@ -12,7 +12,7 @@ Container is hosted in [DockerHub](https://hub.docker.com/r/atishikawa/github_pr
 To run a container using a github token from GitHub CLI,
 
 ```shell
-docker run --env GITHUB_TOKEN=$(gh auth token) -p 11111:11111 atishikawa/github_project_prometheus_exporter:0.1.0 $GITHUB_USER
+docker run --env GITHUB_TOKEN=$(gh auth token) -p 11111:11111 atishikawa/github_project_prometheus_exporter $GITHUB_USER
 ```
 
 ## Development
