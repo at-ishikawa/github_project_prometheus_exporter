@@ -5152,11 +5152,18 @@ func (v *PaginateProjectItemsNodeProjectV2ItemFieldTextValue) GetTypename() stri
 type PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnection struct {
 	// A list of nodes.
 	Nodes []PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodesProjectV2Item `json:"nodes"`
+	// Information to aid in pagination.
+	PageInfo PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo `json:"pageInfo"`
 }
 
 // GetNodes returns PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnection.Nodes, and is useful for accessing the field via an interface.
 func (v *PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnection) GetNodes() []PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodesProjectV2Item {
 	return v.Nodes
+}
+
+// GetPageInfo returns PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnection.PageInfo, and is useful for accessing the field via an interface.
+func (v *PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnection) GetPageInfo() PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo {
+	return v.PageInfo
 }
 
 // PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodesProjectV2Item includes the requested fields of the GraphQL type ProjectV2Item.
@@ -5849,6 +5856,27 @@ func __marshalPaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodes
 		return nil, fmt.Errorf(
 			`unexpected concrete type for PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionNodesProjectV2ItemFieldValuesProjectV2ItemFieldValueConnectionNodesProjectV2ItemFieldValue: "%T"`, v)
 	}
+}
+
+// PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo includes the requested fields of the GraphQL type PageInfo.
+// The GraphQL type's documentation follows.
+//
+// Information about pagination in a connection.
+type PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo struct {
+	// When paginating forwards, the cursor to continue.
+	EndCursor string `json:"endCursor"`
+	// When paginating forwards, are there more items?
+	HasNextPage bool `json:"hasNextPage"`
+}
+
+// GetEndCursor returns PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo.EndCursor, and is useful for accessing the field via an interface.
+func (v *PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo) GetEndCursor() string {
+	return v.EndCursor
+}
+
+// GetHasNextPage returns PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo.HasNextPage, and is useful for accessing the field via an interface.
+func (v *PaginateProjectItemsNodeProjectV2ItemsProjectV2ItemConnectionPageInfo) GetHasNextPage() bool {
+	return v.HasNextPage
 }
 
 // PaginateProjectItemsNodeProjectV2IterationField includes the requested fields of the GraphQL type ProjectV2IterationField.
@@ -7048,10 +7076,14 @@ func (v *__FetchUserProjectsInput) GetUserId() string { return v.UserId }
 // __PaginateProjectItemsInput is used internally by genqlient
 type __PaginateProjectItemsInput struct {
 	ProjectId string `json:"projectId"`
+	Cursor    string `json:"cursor"`
 }
 
 // GetProjectId returns __PaginateProjectItemsInput.ProjectId, and is useful for accessing the field via an interface.
 func (v *__PaginateProjectItemsInput) GetProjectId() string { return v.ProjectId }
+
+// GetCursor returns __PaginateProjectItemsInput.Cursor, and is useful for accessing the field via an interface.
+func (v *__PaginateProjectItemsInput) GetCursor() string { return v.Cursor }
 
 // The query or mutation executed by FetchUserProjects.
 const FetchUserProjects_Operation = `
@@ -7095,14 +7127,14 @@ func FetchUserProjects(
 
 // The query or mutation executed by PaginateProjectItems.
 const PaginateProjectItems_Operation = `
-query PaginateProjectItems ($projectId: ID!) {
+query PaginateProjectItems ($projectId: ID!, $cursor: String!) {
 	node(id: $projectId) {
 		__typename
 		... on ProjectV2 {
-			items(first: 100) {
+			items(first: 100, after: $cursor) {
 				nodes {
 					id
-					fieldValues(first: 8) {
+					fieldValues(first: 20) {
 						nodes {
 							__typename
 							... on ProjectV2ItemFieldSingleSelectValue {
@@ -7117,6 +7149,10 @@ query PaginateProjectItems ($projectId: ID!) {
 						}
 					}
 				}
+				pageInfo {
+					endCursor
+					hasNextPage
+				}
 			}
 		}
 	}
@@ -7127,12 +7163,14 @@ func PaginateProjectItems(
 	ctx_ context.Context,
 	client_ graphql.Client,
 	projectId string,
+	cursor string,
 ) (*PaginateProjectItemsResponse, error) {
 	req_ := &graphql.Request{
 		OpName: "PaginateProjectItems",
 		Query:  PaginateProjectItems_Operation,
 		Variables: &__PaginateProjectItemsInput{
 			ProjectId: projectId,
+			Cursor:    cursor,
 		},
 	}
 	var err_ error

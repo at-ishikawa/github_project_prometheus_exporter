@@ -9,13 +9,13 @@ query FetchUserProjects($userId: String!) {
   }
 }
 
-query PaginateProjectItems($projectId: ID!) {
+query PaginateProjectItems($projectId: ID!, $cursor: String!) {
   node(id: $projectId) {
     ... on ProjectV2 {
-      items(first: 100) {
+      items(first: 100, after: $cursor) {
         nodes{
           id
-          fieldValues(first: 8) {
+          fieldValues(first: 20) {
             nodes{
               ... on ProjectV2ItemFieldSingleSelectValue {
                 name
@@ -27,6 +27,11 @@ query PaginateProjectItems($projectId: ID!) {
               }
             }
           }
+        }
+        # https://docs.github.com/en/graphql/guides/using-pagination-in-the-graphql-api#about-pagination
+        pageInfo {
+          endCursor
+          hasNextPage
         }
       }
     }
